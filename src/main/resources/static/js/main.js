@@ -64,11 +64,11 @@ Vue.component('message-row', {
             this.editMethod(this.message);
         },
         del: function () {
-messageApi.remove({id: this.message.id}).then(result=>{
-    if (result.ok){
-        this.messages.splice(this.messages.indexOf(this.message),1)
-    }
-})
+            messageApi.remove({id: this.message.id}).then(result => {
+                if (result.ok) {
+                    this.messages.splice(this.messages.indexOf(this.message), 1)
+                }
+            })
         }
     }
 })
@@ -84,9 +84,7 @@ Vue.component('messages-list', {
         '<message-form :messages="messages" :messageAttr="message"/>' +
         '<message-row v-for="message in messages" :key="message.id" :message="message" :editMethod="editMethod" :messages="messages"/>' +
         '</div>',
-    created: function () {
-        messageApi.get().then(result => result.json().then(data => data.forEach(message => this.messages.push(message))))
-    },
+
     methods: {
         editMethod: function (message) {
             this.message = message;
@@ -95,8 +93,15 @@ Vue.component('messages-list', {
 });
 var app = new Vue({
     el: '#app',
-    template: "<messages-list :messages='messages'/>",
+    template: '<div>' +
+        '<div v-if="!profile">Необходимо авторизоваться через<a href="/login">Google</a></div>' +
+        '<messages-list v-else:messages="messages"/>' +
+        '</div>',
     data: {
-        messages: []
-    }
-})
+        messages: fronendData.messages,
+        profile: fronendData.profile
+    },
+    created: function () {
+        messageApi.get().then(result => result.json().then(data => data.forEach(message => this.messages.push(message))))
+    },
+});
