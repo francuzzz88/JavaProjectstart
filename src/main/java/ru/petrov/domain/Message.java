@@ -7,7 +7,6 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -29,11 +28,4 @@ public class Message {
     @JsonView(Views.FullMessage.class)
     private LocalDateTime timeCreation;
 
-    public LocalDateTime getTimeCreation() {
-        return timeCreation;
-    }
-
-    public void setTimeCreation(LocalDateTime timeCreation) {
-        this.timeCreation = timeCreation;
-    }
-}
+   }
