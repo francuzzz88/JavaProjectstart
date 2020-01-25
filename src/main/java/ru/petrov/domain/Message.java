@@ -28,4 +28,12 @@ public class Message {
     @JsonView(Views.FullMessage.class)
     private LocalDateTime timeCreation;
 
+    @JsonView({Views.FullMessage.class})
+    private String link;
+    @JsonView({Views.FullMessage.class})
+    private String linkTitle;
+    @JsonView({Views.FullMessage.class})
+    private String linkDescription;
+    @JsonView({Views.FullMessage.class})
+    private String linkCover;
    }
