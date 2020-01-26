@@ -8,8 +8,10 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ru.petrov.domain.Message;
+import ru.petrov.domain.User;
 import ru.petrov.domain.Views;
 import ru.petrov.dto.EventType;
 import ru.petrov.dto.MetaDto;
@@ -57,21 +59,27 @@ public class MessageController {
 
 
     @PostMapping
-    public Message create(@RequestBody Message message) throws IOException {
+    public Message create(@RequestBody Message message, @AuthenticationPrincipal User user) throws IOException {
         message.setTimeCreation(LocalDateTime.now());
         fillMeta(message);
+        message.setAuthor(user);
         Message updateMessage = messageRepository.save(message);
         wsSender.accept(EventType.CREATE, updateMessage);
         return updateMessage;
     }
 
     @PutMapping("{id}")
-    public Message update(@PathVariable("id") Message messageFromDb, @RequestBody Message message) throws IOException {
+    public Message update(
+            @PathVariable("id") Message messageFromDb,
+            @RequestBody Message message
+    ) throws IOException {
         BeanUtils.copyProperties(message, messageFromDb, "id");
         fillMeta(messageFromDb);
-        Message updateMessage = messageRepository.save(messageFromDb);
-        wsSender.accept(EventType.UPDATE, updateMessage);
-        return updateMessage;
+        Message updatedMessage = messageRepository.save(messageFromDb);
+
+        wsSender.accept(EventType.UPDATE, updatedMessage);
+
+        return updatedMessage;
     }
 
     @DeleteMapping("{id}")
@@ -87,15 +95,15 @@ public class MessageController {
 
         if (matcher.find()) {
             String url = text.substring(matcher.start(), matcher.end());
+
             matcher = IMG_REGEX.matcher(url);
 
             message.setLink(url);
 
             if (matcher.find()) {
                 message.setLinkCover(url);
-            } else if (url.contains("youtu")) {
+            } else if (!url.contains("youtu")) {
                 MetaDto meta = getMeta(url);
-
 
                 message.setLinkCover(meta.getCover());
                 message.setLinkTitle(meta.getTitle());
@@ -105,10 +113,12 @@ public class MessageController {
     }
 
     private MetaDto getMeta(String url) throws IOException {
-        Document document = Jsoup.connect(url).get();
-        Elements title = document.select("meta[name$=title], meta[property$=title]");
-        Elements description = document.select("meta[name$=description], meta[property$=description]");
-        Elements cover = document.select("meta[name$=image], meta[property$=image]");
+        Document doc = Jsoup.connect(url).get();
+
+        Elements title = doc.select("meta[name$=title],meta[property$=title]");
+        Elements description = doc.select("meta[name$=description],meta[property$=description]");
+        Elements cover = doc.select("meta[name$=image],meta[property$=image]");
+
         return new MetaDto(
                 getContent(title.first()),
                 getContent(description.first()),

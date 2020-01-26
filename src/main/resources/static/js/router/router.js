@@ -6,12 +6,11 @@ import Profile from 'pages/Profile.vue'
 
 Vue.use(VueRouter)
 
-const  routes = [
-    {path: '/', component: MessagesList},
-    {path: '/auth', component: Auth},
-    {path: "/profile", component: Profile},
-    {path: '*', component: MessagesList},
-
+const routes = [
+    { path: '/', component: MessagesList },
+    { path: '/auth', component: Auth },
+    { path: '/profile', component: Profile },
+    { path: '*', component: MessagesList },
 ]
 
 export default new VueRouter({

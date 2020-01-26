@@ -36,7 +36,7 @@ public class WsSender {
             }
 
             template.convertAndSend(
-                    "topic/activity",
+                    "/topic/activity",
                     new WsEventDto(objectType, eventType, value)
             );
 

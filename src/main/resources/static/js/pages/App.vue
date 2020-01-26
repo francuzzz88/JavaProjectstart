@@ -2,14 +2,16 @@
     <v-app>
         <v-app-bar app>
             <v-toolbar-title>Message</v-toolbar-title>
-            <v-btn rounded v-if="profile"
-                   :disabled="$route.path==='/'"
+            <v-btn rounded
+                   v-if="profile"
+                   :disabled="$route.path=== '/'"
                    @click="showMessages">
-                Message
+                Messages
             </v-btn>
             <v-spacer></v-spacer>
-            <v-btn rounded v-if="profile"
-                   :disabled="$route.path==='/profile'"
+            <v-btn rounded
+                   v-if="profile"
+                   :disabled="$route.path=== '/profile'"
                    @click="showProfile">
                 {{profile.name}}
             </v-btn>
@@ -25,14 +27,9 @@
 </template>
 
 <script>
-    import {mapState, mapMutations} from 'vuex'
-    import MessagesList from 'pages/MessageList.vue'
-    import {addHandler} from 'util/ws'
-
+    import { mapState, mapMutations } from 'vuex'
+    import { addHandler } from 'util/ws'
     export default {
-        components: {
-            MessagesList
-        },
         computed: mapState(['profile']),
         methods: {
             ...mapMutations(['addMessageMutation', 'updateMessageMutation', 'removeMessageMutation']),
@@ -41,33 +38,29 @@
             },
             showProfile() {
                 this.$router.push('/profile')
-            },
+            }
         },
-
         created() {
             addHandler(data => {
                 if (data.objectType === 'MESSAGE') {
-
                     switch (data.eventType) {
                         case 'CREATE':
-                            this.addMessageMutation(data, body)
+                            this.addMessageMutation(data.body)
                             break
                         case 'UPDATE':
-                            this.updateMessageMutation(data, body)
+                            this.updateMessageMutation(data.body)
                             break
                         case 'REMOVE':
-                            this.removeMessageMutation(data, body)
+                            this.removeMessageMutation(data.body)
                             break
                         default:
-                            console.error('Looks like the event type if unknown "${eventType}"')
+                            console.error(`Looks like the event type if unknown "${data.eventType}"`)
                     }
-
                 } else {
-                    console.error('Looks like the  object type if unknown "${objectType}"')
+                    console.error(`Looks like the object type if unknown "${data.objectType}"`)
                 }
             })
-        }
-        ,
+        },
         beforeMount() {
             if (!this.profile) {
                 this.$router.replace('/auth')

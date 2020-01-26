@@ -8,6 +8,9 @@
 
     <script th:inline="javascript">
         var frontendData = [[${frontendData}]];
+        var messages = [# th:utext="${messages}" /];
+
+
     </script>
 </head>
 <body>

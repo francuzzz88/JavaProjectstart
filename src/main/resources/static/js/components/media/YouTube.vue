@@ -12,7 +12,6 @@
 
     export default {
         name: 'Youtube',
-
         props: ['src'],
         computed: {
             targetSrc(){
