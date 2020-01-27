@@ -1,5 +1,6 @@
 package ru.petrov.dto;
 
 public enum ObjectType {
-    MESSAGE
+    MESSAGE, COMMENT;
+
 }
